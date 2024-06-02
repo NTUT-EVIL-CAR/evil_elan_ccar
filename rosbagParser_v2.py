@@ -595,9 +595,9 @@ for files in sorted_bag_files:
 
             for time_vls128_index in range (len(data_dict["VLS128"])):
 
-                # VLS128 找離 Image 前(大概)0.23秒
+                # VLS128 找離 Image 前(大概)0.2秒
                 if ((time_image_current is not None) and
-                    (0.18 < (data_dict["Image"][time_image_current] - data_dict["VLS128"][time_vls128_index]) < 0.28)):
+                    (0.15 < (data_dict["Image"][time_image_current] - data_dict["VLS128"][time_vls128_index]) < 0.25)):
                     if (time_vls128_current == None):
                         time_vls128_current = time_vls128_index
                         data_list.append(data_dict["VLS128"][time_vls128_index])
