@@ -1,18 +1,68 @@
 #!/bin/bash
 
 DEFAULT_TIME=10
-storage_path="./bag_record/$(date +"%Y-%m-%d")/EVIL"
-if [ ! -d "$(dirname "$storage_path")" ]; then
-    mkdir -p "$(dirname "$storage_path")"
+storage_base_path="./bag_record/$(date +"%Y-%m-%d")/"
+situation=""
+
+if [ ! -d "$(dirname "$storage_base_path")" ]; then
+    mkdir -p "$(dirname "$storage_base_path")"
 fi
 
 function record_data() {
-    gnome-terminal --tab -t "record" -- bash -c "rosbag record --duration=$1 -o $2 /can0/received_msg /can1/received_msg /can2/received_msg /cme_cam /rslidar_points /imu /fix /velodyne_points;"
+    storage_path="${storage_base_path}${situation}"
+    gnome-terminal --tab -t "record" -- bash -c "rosbag record --duration=$1 -o $storage_path /can0/received_msg /can1/received_msg /can2/received_msg /cme_cam /rslidar_points /imu /fix /velodyne_points;"
     echo -e "Record successfully!\n"
 }
 
+function change_situation() {
+    road_type=""
+    weather=""
+    time_period=""
+
+    echo -e "+----------------------------------+"
+    echo -e "|   situation|        0|          1|"
+    echo -e "+----------------------------------+"
+    echo -e "|   road_type| heighway| citystreet|"
+    echo -e "|     weather|    sunny|      rainy|"
+    echo -e "| time_period|      day|      night|"
+    echo -e "+----------------------------------+"
+
+    while true; do
+        read -p "Enter road_type: " road_type
+        case $road_type in
+            0) road_type="heighway"; break ;;
+            1) road_type="citystreet"; break ;;
+            *) echo "invalid road_type" ;;
+        esac        
+    done
+
+    while true; do
+        read -p "Enter weather: " weather
+        case $weather in
+            0) weather="sunny"; break ;;
+            1) weather="rainy"; break ;;
+            *) echo "invalid weather" ;;
+        esac
+    done
+
+    while true; do
+        read -p "Enter time_period: " time_period
+        case $time_period in
+            0) time_period="day"; break ;;
+            1) time_period="night"; break ;;
+            *) echo "invalid time_period" ;;
+        esac
+    done
+
+    situation="${road_type}_${weather}_${time_period}"
+    echo -e "Setting situation as: $situation\n"
+}
+
+echo -e "Enter 'r' to record (default time $DEFAULT_TIME sec)\nEnter 'q' to quit\nEnter 'c' to change situation\n"
+change_situation
+
 while true; do
-    read -p "Enter 'r' to record (default time $DEFAULT_TIME sec), or 'q' to quit: " key
+    read -p "Enter option: " key
 
     option=${key:0:1}
     setTime=${key:2}
@@ -27,13 +77,17 @@ while true; do
                 echo "Set record time => $setTime sec"
             fi
             
-            echo "option = $option , setTime = $time"
-            record_data "$time" "$storage_path"
+            record_data "$time"
             ;;
             
         [qQ])
             echo "Exiting the record."
             exit 0
+            ;;
+
+        [cC])
+            echo -e "Setting situation.\n"
+            change_situation
             ;;
 
         *)
