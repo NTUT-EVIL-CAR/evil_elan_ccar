@@ -1,15 +1,16 @@
 #!/bin/bash
 
 DEFAULT_TIME=10
-storage_base_path="./bag_record/$(date +"%Y-%m-%d")/"
+storage_base_path="./bag_record/$(date +"%Y-%m-%d")"
 situation=""
 
-if [ ! -d "$(dirname "$storage_base_path")" ]; then
-    mkdir -p "$(dirname "$storage_base_path")"
+if [ ! -d  $storage_base_path ]; then
+    mkdir -p  $storage_base_path
 fi
 
 function record_data() {
-    storage_path="${storage_base_path}${situation}"
+    record_situation=$2
+    storage_path="${storage_base_path}/${record_situation}"
     gnome-terminal --tab -t "record" -- bash -c "rosbag record --duration=$1 -o $storage_path /can0/received_msg /can1/received_msg /can2/received_msg /cme_cam /rslidar_points /imu /fix /velodyne_points;"
     echo -e "Record successfully!\n"
 }
@@ -58,7 +59,7 @@ function change_situation() {
     echo -e "Setting situation as: $situation\n"
 }
 
-echo -e "Enter 'r' to record (default time $DEFAULT_TIME sec)\nEnter 'q' to quit\nEnter 'c' to change situation\n"
+echo -e "Enter 'r' to record (default time $DEFAULT_TIME sec)\nEnter 'q' to quit\nEnter 'c' to change situation\nEnter 't' to record in tunnel\n"
 change_situation
 
 while true; do
@@ -77,19 +78,31 @@ while true; do
                 echo "Set record time => $setTime sec"
             fi
             
-            record_data "$time"
+            record_data "$time" "$situation"
             ;;
             
         [qQ])
-            echo "Exiting the record."
+            echo -e "Exiting the record\n"
             exit 0
             ;;
 
         [cC])
-            echo -e "Setting situation.\n"
+            echo -e "Setting situation\n"
             change_situation
             ;;
 
+        [tT])
+            echo "In tunnel"
+            if [ -z "$setTime" ]; then
+                time=$DEFAULT_TIME
+                echo "No set time, record time => $DEFAULT_TIME sec"
+            else
+                time="$setTime"
+                echo "Set record time => $setTime sec"
+            fi
+            
+            record_data "$time" "tunnel"
+            ;;
         *)
             echo "$key invalid"
             ;;
