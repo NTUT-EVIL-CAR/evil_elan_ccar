@@ -427,12 +427,14 @@ def Radar_Target_B_509(num):
 
     return Type, ProbExist, DynProp, MeasStat, Accel_X, ID, MsgCnt_B
 
+def sort_key(file_name):
+    return file_name.split('_')[-1]
 
 
 bagpath = './'
 bag_coordinates = []
 bag_files = [f for f in os.listdir(bagpath) if f.endswith(".bag")]
-sorted_bag_files = sorted(bag_files)
+sorted_bag_files = sorted(bag_files, key=sort_key)
 
 for files in sorted_bag_files:
     if files[-4:] == ".bag":
