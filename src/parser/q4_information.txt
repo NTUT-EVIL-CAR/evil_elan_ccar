@@ -1,0 +1,223 @@
+LH_Confidence, LH_Lanemark_Type, LH_Side, LH_VR_Start, LH_VR_End
+LH_C0, LH_C1, LH_C2, LH_C3
+LH_Confidence, LH_Lanemark_Type, LH_Side, LH_VR_Start, LH_VR_End
+LH_C0, LH_C1, LH_C2, LH_C3
+LA_Type, LA_Confidence, LA_VR_Start, LA_VR_End, LA_Side
+LA_C0, LA_C1, LA_C2, LA_C3
+LA_Type, LA_Confidence, LA_VR_Start, LA_VR_End, LA_Side
+LA_C0, LA_C1, LA_C2, LA_C3
+LA_Type, LA_Confidence, LA_VR_Start, LA_VR_End, LA_Side
+LA_C0, LA_C1, LA_C2, LA_C3
+LA_Type, LA_Confidence, LA_VR_Start, LA_VR_End, LA_Side
+LA_C0, LA_C1, LA_C2, LA_C3
+Num_Of_Objs, CIPV_ID, CIPV_Lost, OBJ_Acc, ...
+OBJ_ID, OBJ_Class, OBJ_Width, OBJ_Length, Relative_Long_Velocity, OBJ_Lane_Assignment, Relative_Lat_Velocity, ...
+Absolute_Long_Acc, Long_Distance, Lat_Distance, ...
+Absolute_Speed, OBJ_Angle_Mid, OBJ_Angle_Rate, ...
+
+LH_Confidence
+• Type: Unsigned
+• Meaning: Confidence of lane mark
+
+LH_Lanemark_Type
+• Type: Unsigned
+• Unit: ENUM
+• Meaning: Lane Mark Type Classification (first segment only)
+Mobileye_Q4_lane_host_type = ["Undecided", "Solid", "Dahsed", "Double Line Marking", "Basis of Track for Temporary Shifts", "Deceleration", "High Occupancy Vehicle Lane"]
+
+LH_Side
+• Type: Unsigned
+• Unit: ENUM
+• Meaning: Lane mark side 車道線的位置 左或右車道
+Mobileye_Q4_lane_host_side = ["Unknown", "Left", "Right"]
+
+LH_VR_Start
+• Type: Unsigned
+• Unit: meter
+• Meaning: Start of longitudinal view range of lane mark.
+• Range: 0 ~ 200
+
+LH_VR_End
+• Type: Unsigned
+• Unit: meter
+• Meaning: End of longitudinal view range of lane mark.
+• Range: 0 ~ 200
+
+LH_C0
+• Type: meter
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+
+LH_C1
+• Type: rad
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+
+LH_C2
+• Type: 1/m
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+
+LH_C3
+• Type: 1/m2
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+
+LA_Type
+• Type: Unsigned
+• Unit: ENUM
+• Meaning: ENUM of Lane Mark Type Classification.
+Mobileye_Q4_lane_adjacent_type = ["Undecided", "Solid", "Dahsed", "Double Line Marking", "Basis of Track for Temporary Shifts", "High Occupancy Vehicle Lane"]
+
+LA_Confidence
+• Type: Unsigned
+• Unit: conf
+• Meaning: Confidence of lane mark.
+
+LA_VR_Start
+• Type: Unsigned:
+• Unit: m
+• Meaning: Start of longitudinal view range of lane mark.
+• Range: 0 ~ 200
+
+LA_VR_End
+• Type: Unsigned:
+• Unit: m
+• Meaning: End of longitudinal view range of lane mark.
+• Range: 0 ~ 200
+
+LA_Side
+• Type: Unsigned
+• Unit: ENUM
+• Meaning: The role of the lane mark relative to the host vehicle. Commonly the host left boundary is also the right boundary of the next left lane (and the host right boundary is also the left boundary of the next right lane).
+Mobileye_Q4_lane_adjacent_side = ["Unknown", "Left Left", "Left Right", "Right Left", "Right Right"]
+// 左右車道的左右車道線
+
+LA_C0
+• Type: Unsigned
+• Unit: Meter
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+• Range: (-10) ~ 10
+
+LA_C1
+• Type: Unsigned
+• Unit: rad
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+• Range: (-0.357) ~ 0.357
+
+LA_C2
+• Type: Unsigned
+• Unit: 1/m
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+• Range: (-0.032) ~ 0.032
+
+LA_C3
+• Type: Unsigned
+• Unit: 1/m2
+• Meaning: Ci is coefficient corresponding to variable with power of 'i'.
+• Range: (-0.000122) – 0.000122
+
+Num_Of_Objs
+• Type: Unsigned
+• Meaning: Number of recognized video objects in the scene (Veds, Peds, General
+Objects)
+• Unit: counter
+
+CIPV_ID
+• Type: Unsigned
+• Meaning: Represents the ID of the CIPV.
+• Unit: counter
+
+CIPV_Lost
+• Type: Unsigned
+• Unit: ENUM
+• Meaning: Reports a CIPV loss that cannot be explained to initiate a takeover request.
+    • State of the CIPV in terms of its loss
+    • 0 – NO_LOSS - There was no recent loss of CIPV
+    • 1 – LOST_TARGET_FOV_OUT - indicates the CIPV has left the image on the side OR in a sharp curve OR was cutting out of the host lane (i.e., naturally drop)
+    • 2 – LOST_TARGET_FOV_IN - indicated other cases where the CIPV was lost in the middle of the detection area without any plausible reason. Can happen in rare cases of very hilly terrains (the car disappears over the hill in the middle of the frame with no other CIPV candidates)
+
+OBJ_Acc
+• Type: Unsigned
+• Unit: ENUM
+• Meaning: This signal is intended to suppress acceleration in stop and go ACC scenarios when we suspect something is in our way.
+Mobileye_Q4_object_acceleration = ["Free_Space", "Space_Not_Free", "Free_Space_Unknown"]
+
+OBJ_ID
+• Type: counter
+• Meaning: ID Manager based ID
+
+OBJ_Class
+• Type: ENUM
+• Meaning: Indicates the object type. Uncertain is outputted in case the probability that a vehicle is a truck is very similar to the probability that it is a car.
+Mobileye_Q4_object_class_name = ["car", "truck", "bike", "bicycle", "pedestrian", "general_object", "unknown", "uncertain_vcl"]
+
+OBJ_Width
+• Type: Unsigned
+• Unit: Meter
+• Meaning: PHYSICAL STATES: PS_width
+• Range: 0 ~ 6.35
+// 物件寬
+
+OBJ_Length
+• Type: Unsigned
+• Unit: meter
+• Meaning: PHYSICAL STATES: PS_length
+• Range: 0 ~ 25.5
+// 物件高
+
+Relative_Long_Velocity
+• Type: Unsigned
+• Unit: m/s
+• Meaning: PHYSICAL STATES: PS_longRelSpeed
+• Range: (-120) ~ 130
+// 縱向速度
+
+OBJ_Lane_Assignment
+• Type: unsigned
+• Unit: ENUM
+• Meaning: LANE DATA: laneAssignment
+Mobileye_Q4_lane_assignment = ["Next Left Lane", "Left Lane", "Ego Lane", "Right Lane", "Next Right Lane", "Not assigned"]
+// 物件在哪一條車道線上
+
+Relative_Lat_Velocity
+• Type: Unsigned
+• Unit: m/s
+• Meaning: PHYSICAL STATES: PS_laterSpeed
+• Range: (-50) ~ 50
+// 橫向速度
+
+Absolute_Long_Acc
+• Type: Unsigned
+• Unit: m/s2
+• Meaning: absoluteLongAcceleration 6.3.1.9
+• Range: (-12.8) ~ 12.75
+// 橫向加速度
+
+Long_Distance
+• Type: Unsigned
+• Unit: meter
+• Meaning: PHYSICAL STATES: PS_longDist from VD3D
+• Range: 0 ~ 350
+// 物件縱向位置
+
+Lat_Distance
+• Type: Unsigned
+• Unit: meter
+• Meaning: PHYSICAL STATES: PS_latDist
+• Range: (-102.4) ~ 102.3
+// 物件橫向位置
+
+Absolute_Speed
+• Type: Unsigned:
+• Unit: meter/sec
+• Meaning: PHYSICAL STATES:PS_targetSpeed
+• Range: (-100) ~ 100
+
+OBJ_Angle_Mid
+• Type: Unsigned
+• Unit: rad
+• Meaning: ANGULAR STATES: angleMid
+• Range: (-1.571) ~ 1.57
+
+OBJ_Angle_Rate
+• Type: Unsigned
+• Unit: rad/s
+• Range: (-2.234) ~ 2.2318
+
