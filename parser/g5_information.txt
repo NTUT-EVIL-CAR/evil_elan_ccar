@@ -1,0 +1,97 @@
+Lane Host Left:         LH_Quality, LH_Exist, LH_C0, LH_C1, LH_C2, LH_C3
+                        fit_score_far, fit_score_mid, fit_score_close, distance_score, detect_score
+Lane Host Right:        LH_Quality, LH_Exist, LH_C0, LH_C1, LH_C2, LH_C3
+                        fit_score_far, fit_score_mid, fit_score_close, distance_score, detect_score
+Lane Adjacent Left:     LA_Quality, LA_Exist, LA_C0, LA_C1, LA_C2, LA_C3
+                        fit_score_far, fit_score_mid, fit_score_close, distance_score, detect_score
+Lane Adjacent Right:    LA_Quality, LA_Exist, LA_C0, LA_C1, LA_C2, LA_C3
+                        fit_score_far, fit_score_mid, fit_score_close, distance_score, detect_score
+Lane Overview:          dis_L_1st, dis_R_1st, type_L_1st, type_R_1st, color_L_1st, color_R_1st, dis_L_2nd, dis_R_2nd, type_L_2nd, type_R_2nd, color_L_2nd, color_R_2nd  
+Object Overview:        num_of_objects, OBJ_Lane_Assignment[0] ~ OBJ_Lane_Assignment[19]
+Objects:                OBJ_ID, OBJ_Class, OBJ_Confidence, Long_Distance, Lat_Distance, Relatice_Long_Velocity, Relative_Lat_Velocity, ...
+
+LH_Quality LA_Quality
+• Unit: ENUM
+• Meaning: 0 = 未偵測到車道線, 1 ~ 7 = 信心值高低
+• Range: 0 ~ 7
+
+LH_Exist LA_Exist
+• Unit: ENUM
+• Meaning: 0 = 無車道線, 1 = 有車道線
+
+LH_C0 LA_C0
+• Type: meter
+• Unit: UNS
+
+LH_C1 LA_C1
+• Type: radian
+• Unit: UNS
+
+LH_C2 LA_C2
+• Type: 1/m
+• Unit: UNS
+
+LH_C3 LA_C3
+• Type: 1/m2
+• Unit: UNS
+
+fit_score (close = 0m ~ 20m, mid = 21m ~ 40m, far = 41m ~ 60m)
+• Unit: UNS
+• Meaning: Confidence for each distance
+• Range: 0 ~ 100
+
+dis_L_1st dis_R_1st dis_L_2nd dis_R_2nd
+• Type: meter
+• Unit: UNS
+• Range: 0 ~ 255
+
+type_L_1st type_R_1st type_L_2nd type_R_2nd
+• Unit: ENUM
+type = ["Undecided", "Single Solid", "Double Solid", "Single Dashed", "Road Edge"]
+
+color_L_1st color_R_1st color_L_2nd color_R_2nd
+• Unit: ENUM
+color = ["Undecided", "White", "Yellow", "Red", "Blue", "Pink"]
+
+num_of_objects
+• Unit: UNS
+• Range: 0 ~ 20
+
+OBJ_Lane_Assignment
+• Unit: ENUM
+lane_assignment = ["Undecided", "本車道", "左車道", "右車道"]
+// 物件在哪一個車道上
+
+OBJ_ID
+• Unit: UNS
+• Range: 0 ~ 64
+
+OBJ_Class
+• Unit: ENUM
+object_class_name = ["background", "car_big", "car_small", "motor", "bike", "person", "e_motor_pd", "e_bike_pd", "e_car_big", "e_car_small", "e_motor", "e_bike"]
+
+OBJ_Confidence
+• Unit: UNS
+• Range: 0 ~ 100
+
+Long_Distance
+• Type: meter
+• Unit: UNS
+• Range: 0 ~ 127
+// 物件縱向位置
+
+Lat_Distance
+• Type: meter
+• Unit: UNS
+• Range: -32 ~ 32
+// 物件橫向位置
+
+Relative_Long_Velocity
+• Type: m/s
+• Unit: UNS
+• Range: -20 ~20
+
+Relative_Lat_Velocity
+• Type: m/s
+• Unit: UNS
+• Range: -20 ~20
