@@ -7,5 +7,5 @@
 開啟車上的g5相機
 
 # 使用方式
-./ros_start.sh
+./ros_start.sh \
 ./record_time.sh
