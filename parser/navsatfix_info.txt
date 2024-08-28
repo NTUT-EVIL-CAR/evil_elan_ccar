@@ -1,0 +1,1 @@
+latitude, longtitude, altitude, position_covariance_0~8
