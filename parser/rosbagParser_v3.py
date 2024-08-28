@@ -430,6 +430,25 @@ def Radar_Target_B_509(num):
 def sort_key(file_name):
     return file_name.split('_')[-1]
 
+def initialize_radar_data():
+    radar_header, radar_targetA, radar_targetB = (
+        [] for _ in range(3)
+    )
+    return radar_header, radar_targetA, radar_targetB
+
+def initialize_g5_data():
+    g5_l1, g5_l1_info, g5_r1, g5_r1_info, g5_l2, g5_l2_info, g5_r2, g5_r2_info, g5_lane_overview, g5_obj_overview, g5_obj = (
+        [] for _ in range (11)
+    )
+    return g5_l1, g5_l1_info, g5_r1, g5_r1_info, g5_l2, g5_l2_info, g5_r2, g5_r2_info, g5_lane_overview, g5_obj_overview, g5_obj
+
+def initialize_q4_data():
+    q4_l1_info, q4_l1, q4_r1_info, q4_r1, q4_lr_info, q4_lr, q4_rl_info, q4_rl, q4_ll_info, q4_ll, q4_rr_info, q4_rr, q4_obj_overview, q4_obj, q4_obj_pos, q4_obj_other = (
+        [] for _ in range (16)
+    )
+    return q4_l1_info, q4_l1, q4_r1_info, q4_r1, q4_lr_info, q4_lr, q4_rl_info, q4_rl, q4_ll_info, q4_ll, q4_rr_info, q4_rr, q4_obj_overview, q4_obj, q4_obj_pos, q4_obj_other
+
+
 
 bagpath = './'
 bag_coordinates = []
@@ -634,22 +653,21 @@ for files in sorted_bag_files:
                 complete = False
 
             """test arranged time stamp output"""
-            print(f"No. {dataCount:06d}")
-            print(f"Valid\t\t => {valid}")
-            print(f"Complete\t => {complete}")
-            for data in range(len(data_tuple)):
-                if (data_tuple[data] is None):
-                    print(f"{avaliabale_sensor[data]} time\t => None")
-                else:
-                    print(f"{avaliabale_sensor[data]} time\t => {data_tuple[data]:.6f}")
-            print("--------------------------------------------------------------------")
+            # print(f"No. {dataCount:06d}")
+            # print(f"Valid\t\t => {valid}")
+            # print(f"Complete\t => {complete}")
+            # for data in range(len(data_tuple)):
+            #     if (data_tuple[data] is None):
+            #         print(f"{avaliabale_sensor[data]} time\t => None")
+            #     else:
+            #         print(f"{avaliabale_sensor[data]} time\t => {data_tuple[data]:.6f}")
+            # print("--------------------------------------------------------------------")
 
             if (valid and complete):
                 dataCount += 1
                 time_data_arranged.append(data_tuple)
 
             time_q4_current = time_image_current = time_imu_current = time_m1lidar_current = time_vls128_current = time_radar_current = None
-        # breakpoint()
 
 
 
@@ -674,15 +692,8 @@ for files in sorted_bag_files:
             radar_DynProb = ["Unclassified", "Standing", "Stopped", "Moving", "Oncoming", "Flyover", "Ditchover"]
             radar_MeasStat = ["No object", "New Object", "Predicted Object", "Measured Object", "Invalid"]
 
-            g5_l1, g5_l1_info, g5_r1, g5_r1_info, g5_l2, g5_l2_info, g5_r2, g5_r2_info, g5_lane_overview, g5_obj_overview, g5_obj = (
-                [] for _ in range (11)
-            )
-            q4_l1_info, q4_l1, q4_r1_info, q4_r1, q4_lr_info, q4_lr, q4_rl_info, q4_rl, q4_ll_info, q4_ll, q4_rr_info, q4_rr, q4_obj_overview, q4_obj, q4_obj_pos, q4_obj_other = (
-                [] for _ in range (16)
-            )
-            radar_header, radar_targetA, radar_targetB = (
-                [] for _ in range (3)
-            )
+            g5_l1, g5_l1_info, g5_r1, g5_r1_info, g5_l2, g5_l2_info, g5_r2, g5_r2_info, g5_lane_overview, g5_obj_overview, g5_obj = initialize_g5_data()
+            q4_l1_info, q4_l1, q4_r1_info, q4_r1, q4_lr_info, q4_lr, q4_rl_info, q4_rl, q4_ll_info, q4_ll, q4_rr_info, q4_rr, q4_obj_overview, q4_obj, q4_obj_pos, q4_obj_other = initialize_q4_data()
 
             # OPEN BAG
             try:
@@ -1089,6 +1100,8 @@ for files in sorted_bag_files:
                         out_file = os.path.join(radar_path, f"{data_tuples:06d}.txt")
                         f = open(out_file, 'w')
 
+                        radar_header, radar_targetA, radar_targetB = initialize_radar_data()
+
                         # print(topic, timestr)
                         # print(f"Radar Start => {timestr}")
 
@@ -1116,8 +1129,14 @@ for files in sorted_bag_files:
                             elif (hex(msg.id) in {"0x509", "0x50b", "0x50d", "0x50f", "0x511", "0x513", "0x515", "0x517", "0x519", "0x51b", "0x51d", "0x51f", "0x521", "0x523", "0x525", "0x527", "0x529", "0x52b", "0x52d", "0x52f", "0x531", "0x533", "0x535", "0x537", "0x539", "0x53b", "0x53d", "0x53f", "0x541", "0x543", "0x545", "0x547"}):
                                 Type, ProbExist, DynProp, MeasStat, Accel_X, ID_B, MsgCnt_B = Radar_Target_B_509(data_str)
                                 radar_targetB = Type, ProbExist, DynProp, MeasStat, Accel_X, ID_B, MsgCnt_B
-                                
-                                print(','.join(map(str, radar_targetA[0:8] + radar_targetB[0:5])), file=f)
+                                if (not radar_targetA):
+                                    print(f"No. {data_tuples:06d}: missing {hex(msg.id-1)}")
+
+                                if (radar_targetA and radar_targetB): # 兩個都不是空的
+                                    if (radar_targetA[7] == radar_targetB[5]): # ID相同
+                                        print(','.join(map(str, radar_targetA[0:8] + radar_targetB[0:5])), file=f)
+                                    else:
+                                        print(f"No. {data_tuples:06d}: different targetID {hex(msg.id-1)} {hex(msg.id)}")
 
             # CLOSE BAG
             bag.close()
