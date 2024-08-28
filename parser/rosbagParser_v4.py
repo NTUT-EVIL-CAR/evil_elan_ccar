@@ -995,7 +995,7 @@ class RosbagParser:
             print("Map DONE !")
 
     def parse_bags(self):
-        for files in tqdm(self.sorted_bag_files, desc="Parsing all bags"):
+        for files in tqdm(self.sorted_bag_files, desc="Parsing all bags", ascii=True):
             bag_file = os.path.join(self.ws_path, files)
             self.initialze_data_dictionary()
 
@@ -1011,7 +1011,7 @@ class RosbagParser:
             time_data_arranged = self.validate_and_align_data()
 
             ### 從 bag 讀取 time_data_arranged timestamp 的資料 順便把最後一筆資料濾掉 ###
-            for data_tuples in tqdm(range (len(time_data_arranged) - 1), desc=f"Parsing {files}"):
+            for data_tuples in tqdm(range (len(time_data_arranged) - 1), desc=f"Parsing {files}", ascii=True):
                 ### Open Bag ###
                 try:
                     with rosbag.Bag(bag_file, 'r') as bag:
