@@ -486,9 +486,10 @@ class RosbagParser:
         self.avaliable_sensor = []
         for key, value in self.data_dict.items():
             if (not value):
-                print(f"{key} no found", end='')
+                print(key, end=' ')
             else:
                 self.avaliable_sensor.append(key)
+        print("not found")
 
     def process_can0_messages(self, msg, timefloat):
         ### IVA G5 ###
