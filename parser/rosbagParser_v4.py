@@ -520,7 +520,7 @@ class RosbagParser:
         return None
 
     def get_time_in_range(self, sensor, time_image, pre_time, range):
-        if time_image is not None:
+        if (time_image is not None):
             for time in self.data_dict[sensor]:
                 time_diff = time_image - time
                 if ((pre_time - range/2) < time_diff < (pre_time + range/2)):
