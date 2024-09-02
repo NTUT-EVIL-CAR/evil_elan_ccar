@@ -1,0 +1,21 @@
+<launch>
+
+    <!--can2topic-->
+    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="can0">
+        <param name="can_device" type="string" value="can0" />
+        <remap from="/received_messages" to="/can0/received_msg"/>
+    </node>
+
+    <!--can2topic-->
+    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="can1">
+        <param name="can_device" type="string" value="can1" />
+        <remap from="/received_messages" to="/can1/received_msg"/>
+    </node>
+
+    <!--can2topic-->
+    <node pkg="socketcan_bridge" type="socketcan_to_topic_node" name="can2">
+        <param name="can_device" type="string" value="can2" />
+        <remap from="/received_messages" to="/can2/received_msg"/>
+    </node>
+
+</launch>
