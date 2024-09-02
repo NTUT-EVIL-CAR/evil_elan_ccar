@@ -445,12 +445,13 @@ class RadarMessageParser:
 
 
 class RosbagParser:
-    def __init__(self, ws_path="./", debug=False):
+    def __init__(self, ws_path="./", debug=False, default_sensor_num=6):
         self.ws_path = ws_path
         self.bag_coordinates = []
         self.sorted_bag_files = sorted(self.get_bag_files(), key=self.sort_key)
         self.data_dict = {}
         self.avaliable_sensor = []
+        self.default_sensor_num = default_sensor_num
         self.debug = debug
 
         ### Check Can0 ###
@@ -484,6 +485,7 @@ class RosbagParser:
     
     def check_avaliable_sensor(self):
         self.avaliable_sensor = []
+        print("Sensor: ", end='')
         for key, value in self.data_dict.items():
             if (not value):
                 print(key, end=' ')
@@ -520,7 +522,7 @@ class RosbagParser:
         return None
 
     def get_time_in_range(self, sensor, time_image, pre_time, range):
-        if (time_image is not None):
+        if time_image is not None:
             for time in self.data_dict[sensor]:
                 time_diff = time_image - time
                 if ((pre_time - range/2) < time_diff < (pre_time + range/2)):
@@ -810,7 +812,7 @@ class RosbagParser:
                     print(timefloat, file=time_f)
 
                 img = CvBridge().imgmsg_to_cv2(msg, desired_encoding="passthrough")
-                image_output = os.path.join(image_path, f"{data_tuples:06d}.png")
+                image_output = os.path.join(image_path, f"{data_tuples:06d}.jpg")
                 cv2.imwrite(image_output, img)
 
     def process_imu(self, bag, data_tuples, time_data_arranged, timestamp_path, output_path, index):
@@ -1016,12 +1018,17 @@ class RosbagParser:
                 ### Open Bag ###
                 try:
                     with rosbag.Bag(bag_file, 'r') as bag:
-                        bag_name = files.split('.')[0]
+                        bag_name = os.path.basename(files.split('.')[0])
                         bag_date = datetime.datetime.fromtimestamp(bag.get_start_time()).date()
                         ### Output dir ###
                         parsed_path = self.initialize_output_directory(self.ws_path, f"{bag_date}_parsed_data")
                         bag_path = self.initialize_output_directory(self.ws_path, f"{bag_date}_bag")
-                        output_path = self.initialize_output_directory(parsed_path, bag_name)
+                        if (len(self.avaliable_sensor) == self.default_sensor_num):
+                            situation_path = self.initialize_output_directory(parsed_path, '_'.join(bag_name.split('_')[0:-1]))
+                            output_path = self.initialize_output_directory(situation_path, bag_name)
+                        else:
+                            useless_path = self.initialize_output_directory(parsed_path, "useless")
+                            output_path = self.initialize_output_directory(useless_path, bag_name)
                         timestamp_path = self.initialize_output_directory(output_path, "timestamp")
                         ### Process ###
                         self.process_bag_for_timestamps(bag, data_tuples, time_data_arranged, timestamp_path, output_path)
@@ -1036,8 +1043,10 @@ class RosbagParser:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse ROS bag files.")
+    parser.add_argument("--ws_path", type=str, default="./", help="The workspace directory path. Default is current directory (./).")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode to print detailed information.")
+    parser.add_argument("--sensor_num", type=int, default=6, help="The number of available sensors. Default is 6.")
     args = parser.parse_args()
 
-    parser = RosbagParser(ws_path="./", debug=args.debug)
+    parser = RosbagParser(ws_path=args.ws_path, debug=args.debug, default_sensor_num=args.sensor_num)
     parser.parse_bags()
