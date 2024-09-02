@@ -1037,7 +1037,6 @@ class RosbagParser:
                     continue
             self.process_gps(bag_file, output_path)
             shutil.move(bag_file, bag_path)
-            # print(f"Finished\t{files} !!!!!!!")
         self.generate_map()
 
 
