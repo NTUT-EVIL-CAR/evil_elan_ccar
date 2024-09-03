@@ -936,12 +936,12 @@ class RosbagParser:
                         Type, ProbExist, DynProp, MeasStat, Accel_X, ID_B, MsgCnt_B = RadarMessageParser.Radar_Target_B_509(data_str)
                         radar_targetB = Type, ProbExist, DynProp, MeasStat, Accel_X, ID_B, MsgCnt_B
                         if (not radar_targetA):
-                            print(f"No. {data_tuples:06d}: missing {hex(msg.id-1)}")
+                            print(f"No. {data_tuples:06d}: Radar missing {hex(msg.id-1)}")
                         if (radar_targetA and radar_targetB): # 兩個都不是空的
                             if (radar_targetA[7] == radar_targetB[5]): # ID相同
                                 print(','.join(map(str, radar_targetA[0:8] + radar_targetB[0:5])), file=f)
                             else:
-                                print(f"No. {data_tuples:06d}: different targetID {hex(msg.id-1)} {hex(msg.id)}")
+                                print(f"No. {data_tuples:06d}: Radar different targetID {hex(msg.id-1)} {hex(msg.id)}")
 
     def process_bag_for_timestamps(self, bag, data_tuples, time_data_arranged, timestamp_path, output_path):
         ### Process messages from each sensor ###
@@ -1037,6 +1037,7 @@ class RosbagParser:
                     continue
             self.process_gps(bag_file, output_path)
             shutil.move(bag_file, bag_path)
+            # print(f"Finished\t{files} !!!!!!!")
         self.generate_map()
 
 
