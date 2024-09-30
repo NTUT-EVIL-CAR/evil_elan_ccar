@@ -8,7 +8,82 @@ from sensor_msgs.msg import Image, NavSatFix, Imu, PointCloud2, CameraInfo
 from can_msgs.msg import Frame
 from sensor_msgs import point_cloud2
 from std_msgs.msg import String
-from radarParser import prettyhex2, Radar_Header_505, Radar_VehInfo_300, Radar_Sta_506, Radar_Target_A_508, Radar_Target_B_509
+
+
+
+class RosbagUtils:
+    @staticmethod
+    def prettyhex(nums, sep=''):
+        return sep.join(f'{a:02x}' for a in nums)
+    
+    @staticmethod
+    def prettyhex2(dlc, nums, sep=''):
+        return sep.join(f'{a:02x}' for a in nums[0:dlc])
+
+
+class RadarMessageParser:
+    @staticmethod
+    def Radar_Header_505(num):
+        Radar_Frame = (((int(num[5], 16)) << 8) + int(num[6], 16)) & 0xFFFF
+        Func_Status = int(num[1], 16) & 0xFF
+        AEB_CIPV_ID = int(num[4], 16) & 0xFF
+        ACC_CIPV_ID = int(num[3], 16) & 0xFF
+        CIPV_ID = int(num[2], 16) & 0xFF
+        TunnelFlag = int(num[0], 16) & 0x01
+        No_Obj = (int(num[0], 16) >> 2) & 0x3F
+        return Radar_Frame, Func_Status, AEB_CIPV_ID, ACC_CIPV_ID, TunnelFlag, No_Obj
+
+    @staticmethod
+    def Radar_VehInfo_300(num):
+        YawRate_V = (int(num[1], 16) >> 3) & 0x01
+        YawRate = ((int(num[2], 16) << 8) + int(num[3], 16) & 0xFFFF) * 0.1 - 100
+        VehSpeed_V = (int(num[0], 16) >> 7) & 0x001
+        VehSpeed = (((int(num[0], 16) << 4) + (int(num[1], 16) >> 4)) & 0xFFF) * 0.125
+        return YawRate_V, YawRate, VehSpeed_V, VehSpeed
+
+    @staticmethod
+    def Radar_Sta_506(num):
+        Battery_Voltage_too_high = ((int(num[1], 16)) >> 3) & 0x01
+        Battery_Voltage_too_low = ((int(num[1], 16)) >> 4) & 0x01
+        RF2_Voltage_too_high = ((int(num[1], 16)) >> 2) & 0x01
+        RF2_Voltage_too_low = ((int(num[1], 16)) >> 1) & 0x01
+        RF1_Voltage_too_high = (int(num[1], 16)) & 0x01
+        RF1_Voltage_too_low = ((int(num[0], 16)) >> 7) & 0x01
+        MCU_Voltage_too_low = ((int(num[0], 16)) >> 6) & 0x01
+        MCU_Voltage_too_high = ((int(num[0], 16)) >> 5) & 0x01
+        MCU_Temp_too_low = ((int(num[0], 16)) >> 4) & 0x01
+        MCU_Temp_too_high = ((int(num[0], 16)) >> 3) & 0x01
+        Lost_Communication_With_Camera = ((int(num[0], 16)) >> 2) & 0x01
+        Communication_Bus_Off = ((int(num[0], 16)) >> 1) & 0x01
+        Radar_Sleep_Flag = (int(num[0], 16)) & 0x01
+        return Battery_Voltage_too_high, Battery_Voltage_too_low, RF2_Voltage_too_high, RF2_Voltage_too_low, \
+               RF1_Voltage_too_high, RF1_Voltage_too_low, MCU_Voltage_too_low, MCU_Voltage_too_high, MCU_Temp_too_low, \
+               MCU_Temp_too_high, Lost_Communication_With_Camera, Communication_Bus_Off, Radar_Sleep_Flag
+
+    @staticmethod
+    def Radar_Target_A_508(num):
+        AEB_CIPVFlag = (int(num[7], 16) >> 6) & 0x01
+        ACC_CIPVFlag = (int(num[7], 16) >> 7) & 0x01
+        CIPVFlag = (int(num[7], 16) >> 2) & 0x01
+        Vel_Y = (((int(num[4], 16) << 8) + int(num[5], 16)) & 0xFFF) * 0.05 - 102
+        Vel_X = (((int(num[3], 16) << 4) + (int(num[4], 16) >> 4)) & 0xFFF) * 0.05 - 102
+        Pos_Y = (((int(num[1], 16) << 8) + int(num[2], 16)) & 0xFFF) * 0.125 - 128
+        Pos_X = (((int(num[0], 16) << 4) + (int(num[1], 16) >> 4)) & 0xFFF) * 0.125
+        ID = int(num[6], 16) & 0xFF
+        MsgCnt_A = int(num[7], 16) & 0x03
+        return AEB_CIPVFlag, ACC_CIPVFlag, CIPVFlag, Vel_Y, Vel_X, Pos_Y, Pos_X, ID, MsgCnt_A
+
+    @staticmethod
+    def Radar_Target_B_509(num):
+        Type = (int(num[7], 16) >> 2) & 0x3F
+        ProbExist = int(num[5], 16) & 0x03
+        DynProp = int(num[3], 16) & 0x07
+        MeasStat = (int(num[3], 16) >> 5) & 0x07
+        Accel_X = (((int(num[0], 16) << 4) + (int(num[1], 16) >> 4)) & 0xFFF) * 0.04 - 40
+        ID = int(num[2], 16) & 0xFF
+        MsgCnt_B = int(num[7], 16) & 0x03
+        return Type, ProbExist, DynProp, MeasStat, Accel_X, ID, MsgCnt_B
+
 
 class SensorListener:
     def __init__(self):
@@ -74,25 +149,25 @@ class SensorListener:
 
     def can_callback(self, data, topic_name):
         timestamp = self.get_ros_timestamp(data)
-        data_str = prettyhex2(data.dlc, data.data, '-').split('-')
+        data_str = RosbagUtils.prettyhex2(data.dlc, data.data, '-').split('-')
 
         if topic_name == "/can0/received_msg":
             if data.id == 0x300:
-                radar_veh_info = np.array(Radar_VehInfo_300(data_str))
+                radar_veh_info = np.array(RadarMessageParser.Radar_VehInfo_300(data_str))
             elif 0x505 <= data.id <= 0x547:
                 rospy.loginfo(f"Received Radar data {data.id}")
                 if data.id == 0x505:
-                    self.No_Obj = (Radar_Header_505(data_str)[5]) * 2
-                    self.radar_data = np.array([timestamp] + list(Radar_Header_505(data_str)))
+                    self.No_Obj = (RadarMessageParser.Radar_Header_505(data_str)[5]) * 2
+                    self.radar_data = np.array([timestamp] + list(RadarMessageParser.Radar_Header_505(data_str)))
                 elif data.id == 0x506:
-                    Radar_Sta_506(data_str)
+                    RadarMessageParser.Radar_Sta_506(data_str)
                 if self.No_Obj >= 0:
                     if self.radar_data is not None:
                         if 0x508 <= data.id <= 0x546 and data.id % 2 == 0:
-                            self.radar_data = np.concatenate((self.radar_data, Radar_Target_A_508(data_str)[0:8]))
+                            self.radar_data = np.concatenate((self.radar_data, RadarMessageParser.Radar_Target_A_508(data_str)[0:8]))
                             self.No_Obj -= 1
                         elif 0x509 <= data.id <= 0x547 and data.id % 2 == 1:
-                            self.radar_data = np.concatenate((self.radar_data, Radar_Target_B_509(data_str)[0:5]))
+                            self.radar_data = np.concatenate((self.radar_data, RadarMessageParser.Radar_Target_B_509(data_str)[0:5]))
                             self.No_Obj -= 1
 
                     ### Radar Data ###
@@ -194,6 +269,9 @@ class SensorListener:
         rospy.Subscriber("/velodyne_points", PointCloud2, self.pointcloud_callback)
         rospy.Timer(rospy.Duration(1.0), lambda event: self.broadcast_static_tf())
         rospy.spin()
+
+
+
 
 if __name__ == "__main__":
     listener = SensorListener()
