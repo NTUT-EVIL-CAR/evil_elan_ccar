@@ -1,0 +1,64 @@
+------docker------
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+
+------SetUp------
+source /opt/ros/kinetic/setup.bash
+source ~/catkin_ws/devel/setup.bash
+chomd a+rw /dev/ttyACM0
+------MCUTool------
+/opt/SEGGER/JLink/JFlashLiteExe
+S32K144
+------camera------
+v4l2-ctl --list-devices 查當前連接的相機設備
+v4l2-ctl --list-formats-ext -d /dev/video0 查看當前相機資訊
+------GPS------
+sudo stty -F /dev/ttyUSB0 4800 指定設備,設定speed
+sudo cat /dev/ttyUSB0 這樣就能看到GPS資訊
+------rviz------
+rviz -d xxx.rviz 啟動rviz檔案
+------killros------
+killall -9 roscore
+killall -9 rosmaster
+------shell------
+$? 獲取前一個命令的反還值
+read -p 輸出字串後輸入
+echo -e 允許使用＼指令 eg: \n
+------rospy------
+rospy.init_node() 創node
+rospy.loginfo('abc') 類似print
+rospy.Publisher(topic_name, msg_type, queue_size)
+------rosbag------
+rosbag info 看bag訊息
+rosbag reindex xxx.bag 檔案修復
+rosbag fix xxx.org.bag yyy.bag 檔案修復
+------chmod-------
+chmod -x abc.py 移除權限
+chmod a+rw abc 給所有用戶讀寫權限
+------gnome-terminal------
+範例：gnome-terminal --tab -t"new tab" -- bash -c "new command in new tab; exec bash"
+-t 標題
+-x改-- 要在打開的終端執行的腳本 須在gnome-terminal後加上--tab
+;bash 開一個子shell, 結束後不會關閉
+;exec bash 開一個新的shell, 結束後不會關閉
+------catkin_ws------
+mkdir -p catkin_ws/src/
+cd catkin_ws/
+catkin_make 編譯pakage
+source ~/catkin_ws/devel/setup.bash 每次開新的terminal都要打一次 才能用roslaunch roscd
+------kvaser------
+kvaser的linuxcan會block系統本身的socketcan, 別用
+cd linuxcan/canlib/examples/
+./listChannels
+------list canbus-----
+ls /sys/class/net
+ifconfig -a
+------vlc------
+"--network-caching=0" 把延遲改成0, 因為vlc播放rtsp的延遲預設是1s 一般建議在100~300之間
+------unzip------
+.tar	===>	tar cvf/xvf
+.gz	    ===>	gzip/gunzip
+.tar.gz ===>	tar zcvf/zxvf
+.zip	===>	zip/unzip
+.rar	===>	rar a/e
