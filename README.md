@@ -1,38 +1,71 @@
-# 專案說明
+# 車載感測器數據收集與解析工具
 
-本專案提供 **資料收集** 與 **rosbag 解析** 的工具，並針對車載感測器進行整合。
+本專案提供一套完整的工具，用於收集多種車載感測器（CAN bus, IMU, GPS, 相機, LiDAR）的數據，並將其錄製為 `rosbag` 檔案。此外，專案還包含一個強大的解析腳本，能夠同步不同感測器的時間戳，並將原始數據轉換為結構化的可用格式。
 
 ---
 
-## 📦 收資料
+## 系統工作流程
+
+整個系統分為兩個主要階段：
+
+1.  **數據收集**：
+    -   `ros_start.sh`：一鍵啟動所有感測器的 ROS 驅動節點。
+    -   `record_time.sh`：根據使用者設定的情境（如路況、天氣），錄製指定的 ROS topics 並儲存為 `.bag` 檔案。
+
+2.  **數據解析**：
+    -   `rosbagParser_v4.py`：讀取 `.bag` 檔案，以 G5 相機的 CAN 訊號時間戳為基準，對齊所有感測器的數據，最後將影像、點雲、CAN 資訊等分別導出至對應資料夾。
+
+---
+
+## 使用說明
+
+### 數據收集
+
+1.  **啟動感測器**：
+    在終端機中執行啟動腳本，這將會初始化所有硬體並啟動 ROS 節點。
+    ```bash
+    ./shell/ros_start.sh
+    ```
+    確認所有新開啟的終端機分頁中，各個節點都已正常運行。
+
+2.  **錄製 Rosbag**：
+    執行錄製腳本，並依照提示設定當前的駕駛情境。
+    ```bash
+    ./shell/record_time.sh
+    ```
+    -   輸入 `c` 可隨時更改情境設定。
+    -   輸入 `r` 開始錄製（預設10秒）。
+    -   輸入 `r 60` 開始錄製60秒。
+    -   輸入 `q` 退出程式。
+
+### 數據解析
+
+1.  **準備檔案**：
+    將 `rosbagParser_v4.py` 腳本放置於存放 `.bag` 檔案的同一層資料夾中。
+
+2.  **執行解析**：
+    在該資料夾中執行 Python 腳本。
+    ```bash
+    python3 rosbagParser_v4.py
+    ```
+    腳本會自動尋找所有 `.bag` 檔案，逐一進行解析，並將結果儲存在名為 `YYYY-MM-DD_parsed_data` 的新資料夾內。
+
+---
+
+## 核心腳本詳解
 
 ### `/shell/ros_start.sh`
-- 開啟並連接 **CAN bus、IMU、GPS、相機**
 
-### `/shell/record_time.sh`
-- 錄製 rosbag  
-- 需先設定情境，並訂閱每一個設備的 topic
+**功能**：初始化所有硬體介面 (CAN, IMU, GPS) 與 ROS 節點。
 
-### `/camera/cme_cv2_usb.py`
-- 開啟車上的 **G5 相機**，並 Publish 影像訊息  
-- 在執行 `./ros_start.sh` 時會自動啟動
+此腳本透過 `gnome-terminal` 在多個分頁中並行啟動 `roscore` 以及各個感測器的驅動程式，實現一鍵部署數據收集環境。
 
-#### 使用方式
-1. 先執行 `./ros_start.sh`，確認所有設備皆已連接  
-2. 執行 `./record_time.sh` → 輸入情境設定  
-3. 按下 `r` 開始錄製
+```bash
+# 啟動 roscore
+gnome-terminal --tab -t "roscore" -- bash -c "roscore;exec bash"
+sleep 6
 
----
-
-## 🔍 解析 rosbag
-
-### `/parser/rosbagParser_v4.py`
-- 解析 **CAN bus** 資訊  
-- 以 **G5 timestamp** 為基準（頻率最慢），與 rosbag 內各 topic 做 timestamp 對齊（往後抓最接近的時間點）  
-- 輸出整合後的資料
-
-#### 使用方式
-- 將檔案放置於與 `.bag` 檔同一資料夾  
-- 執行：
-  ```bash
-  python3 rosbagParser_v4.py
+# 啟動各個感測器的 ROS 節點 (以 CAN 和 IMU 為例)
+source ~/catkin_ws/devel/setup.bash
+gnome-terminal --tab -t "can" -- bash -c "roslaunch ~/Desktop/can2topic.launch;exec bash"
+gnome-terminal --tab -t "imu" -- bash -c "roslaunch razor_imu_9dof razor-pub.launch;exec bash"
