@@ -1,6 +1,6 @@
 # 車載多感測器數據收集與解析工具
 
-本專案提供一套完整的工具，用於收集多種車載感測器（CAN bus, IMU, GPS, 相機, LiDAR）的數據，並將其錄製為 `rosbag` 檔案。此外，專案還包含一個強大的解析腳本，能夠以 G5 相機的 CAN 訊號為基準，同步所有感測器的時間戳，並將原始數據轉換為可用於分析的結構化資料。
+本專案提供一套完整的工具，用於收集多種車載感測器（CAN bus, IMU, GPS, 相機, LiDAR）的數據，並將其錄製為 `rosbag` 檔案。此外，專案還包含一個解析腳本，以 G5 相機的 CAN 訊號為基準，同步所有感測器的時間戳，並將原始數據轉換為可用於分析的結構化資料。
 
 ## 系統架構與工作流程
 
@@ -16,13 +16,13 @@
 ## 環境與依賴
 
 ### 硬體需求
-* [cite_start]**CAN Interfaces**: 3x CAN bus (can0, can1, can2) [cite: 1]
+* **CAN Interfaces**: 3x CAN bus (can0, can1, can2)
 * **IMU**: Razor 9-DOF IMU (或類似設備，位於 `/dev/ttyACM0`)
 * **GPS**: NMEA 相容 GPS (位於 `/dev/ttyUSB0`)
-* [cite_start]**相機**: USB Camera (位於 `/dev/video2`, 支援 1280x720 @ 30fps MJPG) [cite: 2]
+* **相機**: USB Camera (位於 `/dev/video2`, 支援 1280x720 @ 30fps MJPG)
 * **LiDAR**:
-    * Velodyne VLS-128
-    * RoboSense LiDAR (可選)
+    * Velodyne VLS-128 LiDAR
+    * RoboSense M1 LiDAR (可選)
 
 ### 軟體需求
 * **OS**: Ubuntu 20.04 (建議)
@@ -111,9 +111,9 @@
 * 設定並啟動 `can0`, `can1`, `can2` 網路接口。
 * 在獨立分頁中啟動 `roscore`。
 * 啟動各感測器的 ROS 驅動節點，包括：
-    * [cite_start]**CAN**: `can2topic.launch` (將 can0, can1, can2 數據轉發至 ROS topics) [cite: 1]。
+    * **CAN**: `can2topic.launch` (將 can0, can1, can2 數據轉發至 ROS topics)。
     * **IMU**: `razor_imu_9dof`。
-    * [cite_start]**相機**: `cme_cv2_usb.py` (自定義 OpenCV 影像發布節點) [cite: 2]。
+    * **相機**: `cme_cv2_usb.py` (自定義 OpenCV 影像發布節點)。
     * **LiDAR**: `velodyne_pointcloud` for VLS128。
     * **GPS**: `nmea_navsat_driver`。
 * 啟動 `RViz` 並載入預設的可視化設定。
