@@ -12,9 +12,9 @@
 
 # 解析rosbag用的code
 ## /parser/rosbagParser_v4.py
-會依據bag內各個topic去做timestamp對齊，再把資料輸出。
+解析canbus資訊，並以G5的timestamp為基準(頻率最慢)，與rosbag內各個topic做timestamp對齊(往後抓時間最接近的)，再把資料輸出。
 ## 使用方式
-須放在與bag同一個資料夾內，直接執行即可 python3 rosbagParser_v2.py
+須放在與bag同一個資料夾內，直接執行即可 python3 rosbagParser_v4.py
 
 # 備註
 其餘程式皆為測試用
