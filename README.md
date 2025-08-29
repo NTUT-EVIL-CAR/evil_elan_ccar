@@ -120,6 +120,7 @@
 
 #### `/shell/record_time.sh`
 互動式錄製腳本，負責錄製以下核心 ROS topics：
+```
 /can0/received_msg
 /can1/received_msg
 /can2/received_msg
@@ -128,6 +129,7 @@
 /imu
 /fix
 /velodyne_points
+```
 
 #### `rosbagParser_v4.py`
 此腳本是整個專案的核心，其主要功能包括：
@@ -139,6 +141,7 @@
 ## 輸出檔案結構
 
 執行 `rosbagParser_v4.py` 後，將會生成如下結構的資料夾：
+```
 .
 ├── YYYY-MM-DD_parsed_data/
 │   └── [SITUATION_NAME]/             # 例如 highway_sunny_day
@@ -169,3 +172,4 @@
 │   └── [BAG_FILE_NAME].bag
 │
 └── [FOLDER_NAME].html                # 所有 Rosbag 軌跡的 HTML 地圖
+```
